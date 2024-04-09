@@ -290,6 +290,17 @@ function updateProxyUsage() {
 function isOptimizedProxyUrlAllowed(url: string): AllowedResult {
   const urlLower = url.toLowerCase();
 
+  if (url.startsWith("socks")) {
+    const socksVersion = url.split("://")[0];
+    if (/[a-zA-Z]$/i.test(socksVersion))
+      return [
+        false,
+        `[${socksVersion}] is unsupported, select a valid proxy type\n\nhttps://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/proxy/ProxyInfo#type_2`,
+      ];
+
+    url = url.replace(/socks(4|5):\/\//, "");
+  }
+
   // Allow default proxies.
   if (DEFAULT_STATE.optimizedProxies.includes(urlLower)) {
     return [true];

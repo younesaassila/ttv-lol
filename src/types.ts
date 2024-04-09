@@ -4,8 +4,10 @@ export type KeyOfType<T, V> = keyof {
 };
 
 // From https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/proxy/ProxyInfo
+export type ProxyTypes = "direct" | "http" | "https" | "socks" | "socks4";
+
 export interface ProxyInfo {
-  type: "direct" | "http" | "https" | "socks" | "socks4";
+  type: ProxyTypes;
   host?: string;
   port?: number;
   username?: string;

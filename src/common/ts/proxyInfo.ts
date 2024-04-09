@@ -1,12 +1,45 @@
 import ip from "ip";
-import type { ProxyInfo } from "../../types";
+import type { ProxyInfo, ProxyTypes } from "../../types";
+
+// Determine supported proxy type based on the URL protocol
+const supportedProxyTypes: { [key: string]: ProxyTypes } = {
+  "http:": "http",
+  "https:": "https",
+  "socks5:": "socks",
+  "socks4:": "socks4",
+  direct: "direct",
+};
+
+function getProxyInfoFromSOCKSUrl(
+  url: string
+): ProxyInfo & { type: ProxyTypes; host: string; port: number } {
+  const socksURLObject = new URL(url);
+  const type: ProxyTypes = supportedProxyTypes[socksURLObject.protocol];
+  // https://developer.mozilla.org/en-US/docs/Web/API/URL/URL
+  // This is a hack, we do this because the URL constructor is unable to parse
+  // non-special schemes as defined here https://url.spec.whatwg.org/#url-miscellaneous
+  url = url.replace(/socks(4|5):\/\//, "https://");
+  const urlObject = new URL(url);
+
+  return {
+    type,
+    host: urlObject.hostname,
+    port: Number(urlObject.port),
+    username: urlObject.username,
+    password: urlObject.password,
+  };
+}
 
 export function getProxyInfoFromUrl(
   url: string
-): ProxyInfo & { type: "http"; host: string; port: number } {
+): ProxyInfo & { type: ProxyTypes; host: string; port: number } {
   const lastIndexOfAt = url.lastIndexOf("@");
   const hostname = url.substring(lastIndexOfAt + 1, url.length);
   const lastIndexOfColon = getLastIndexOfColon(hostname);
+
+  if (url.startsWith("socks")) {
+    return getProxyInfoFromSOCKSUrl(url);
+  }
 
   let host: string | undefined = undefined;
   let port: number | undefined = undefined;
