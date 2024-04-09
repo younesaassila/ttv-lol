@@ -35,6 +35,8 @@ const checkForUpdatesCheckboxElement = $(
 const whitelistedChannelsListElement = $(
   "#whitelisted-channels-list"
 ) as HTMLUListElement;
+// Dragged Proxy Server Element
+let draggedItem = null;
 $;
 // Server list
 const serversListElement = $("#servers-list") as HTMLOListElement;
@@ -201,8 +203,94 @@ function _listAppend(
   options: ListOptions
 ) {
   const listItem = document.createElement("li");
+  listItem.setAttribute("draggable", "true");
+
+  // Handle dragging start
+  function dragStart(e) {
+    let crt = this.cloneNode(true);
+    // Styling for the drag element ghost
+    crt.style.listStyleType = "none";
+    crt.style.setProperty("--liBeforeOpacity", "0");
+    // Anything larger than 280px will cause the element
+    // to have a fade effect and make the text unreadable.
+    Object.assign(crt.firstElementChild.style, {
+      width: "280px",
+      backgroundColor: "#16171a",
+      color: "white",
+      border: "1px solid #5c606c",
+      height: "30px",
+      borderRadius: "6px",
+    });
+
+    document.body.appendChild(crt);
+    e.dataTransfer.setDragImage(crt, 300, 10);
+
+    draggedItem = e.target;
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", this.innerHTML);
+  }
+
+  listItem.addEventListener("dragstart", dragStart);
+
+  // Handle dropping element
+  listItem.addEventListener("drop", e => {
+    let currentTarget = e.target as HTMLElement;
+    e.preventDefault();
+    e.stopPropagation();
+    currentTarget.style.borderBottom = "";
+    currentTarget.style.opacity = "1";
+
+    // When dragged elements gets inserted into the <input> element.
+    // we will take the parentNode instead, <li> element in this case.
+    if (currentTarget.tagName === "INPUT") {
+      currentTarget = (e.target as HTMLElement).parentNode as HTMLElement;
+    }
+
+    // Stop all processing if current target is not <li> or dropped on itself
+    if (currentTarget.tagName !== "LI" || draggedItem === this) return;
+
+    // Insert dragged element to hovered element and vice versa
+    const hoveredElement = currentTarget;
+    const hoveredElementSibling = hoveredElement.nextElementSibling;
+    const hoveredElementParent = currentTarget.parentNode;
+    hoveredElementParent.insertBefore(hoveredElement, draggedItem.nextSibling);
+    hoveredElementParent.insertBefore(draggedItem, hoveredElementSibling);
+
+    // Update servers list
+    const serverList: NodeList =
+      document.getElementById("servers-list").childNodes;
+    for (let i = 0; i < serverList.length - 1; i++) {
+      const listElement = serverList[i];
+      if (!(listElement instanceof HTMLLIElement) || !listElement.draggable)
+        continue;
+
+      const server = (listElement.firstElementChild as HTMLInputElement).value;
+      if (store.state[storeKey][i - 1] === server) continue;
+      store.state[storeKey][i - 1] = server;
+    }
+  });
+
+  listItem.addEventListener("dragenter", e => {
+    const targetElement = e.target as HTMLElement;
+    if (targetElement.tagName !== "LI") return;
+    targetElement.style.borderBottom = "solid 4px #6b07ff";
+    targetElement.style.opacity = "0.3";
+  });
+
+  listItem.addEventListener("dragover", e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  });
+
+  listItem.addEventListener("dragleave", e => {
+    const targetElement = e.target as HTMLElement;
+    targetElement.style.borderBottom = "";
+    targetElement.style.opacity = "1";
+  });
+
   const textInput = document.createElement("input");
   textInput.type = "text";
+  textInput.setAttribute("draggable", "false");
 
   const [allowed] = options.isEditAllowed(text);
   if (!allowed) textInput.disabled = true;
