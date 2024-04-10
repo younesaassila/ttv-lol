@@ -147,6 +147,25 @@ small {
   margin-bottom: 0.25rem;
 }
 
+#servers-list > li {
+  width: 400px;
+}
+
+#servers-list > li:not(.hide-marker):before {
+  position: absolute;
+  left: 440px;
+  width: 20px;
+  height: 30px;
+  content: ".";
+  color: #c3c4ca;
+  font-size: 20px;
+  line-height: 10px;
+  text-shadow: 0 5px #c3c4ca, 0 10px #c3c4ca, 5px 0 #c3c4ca, 5px 5px #c3c4ca,
+    5px 10px #c3c4ca, 10px 0 #c3c4ca, 10px 5px #c3c4ca, 10px 10px #c3c4ca;
+  cursor: grab;
+  opacity: var(--liBeforeOpacity);
+}
+
 li.hide-marker::marker {
   display: none;
   content: "";
