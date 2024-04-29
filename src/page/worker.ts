@@ -5,8 +5,8 @@ import {
   getSendMessageToContentScriptAndWaitForResponse,
   getSendMessageToPageScript,
   getSendMessageToPageScriptAndWaitForResponse,
-  getSendMessageToWorkerScript,
-  getSendMessageToWorkerScriptAndWaitForResponse,
+  getSendMessageToWorkerScripts,
+  getSendMessageToWorkerScriptsAndWaitForResponse,
 } from "./sendMessage";
 import type { PageState } from "./types";
 
@@ -27,21 +27,22 @@ const sendMessageToContentScriptAndWaitForResponse =
 const sendMessageToPageScript = getSendMessageToPageScript();
 const sendMessageToPageScriptAndWaitForResponse =
   getSendMessageToPageScriptAndWaitForResponse();
-const sendMessageToWorkerScript = getSendMessageToWorkerScript();
+const sendMessageToWorkerScript = getSendMessageToWorkerScripts();
 const sendMessageToWorkerScriptAndWaitForResponse =
-  getSendMessageToWorkerScriptAndWaitForResponse();
+  getSendMessageToWorkerScriptsAndWaitForResponse();
 
 const pageState: PageState = {
   isChromium: params.isChromium,
   scope: "worker",
   state: undefined,
-  twitchWorker: undefined, // Can't get the worker instance from inside the worker.
+  twitchWorkers: [], // FIXME: Always empty in workers. (Could be problematic for Usher manifests in Worker)
   sendMessageToContentScript,
   sendMessageToContentScriptAndWaitForResponse,
   sendMessageToPageScript,
   sendMessageToPageScriptAndWaitForResponse,
-  sendMessageToWorkerScript,
-  sendMessageToWorkerScriptAndWaitForResponse,
+  sendMessageToWorkerScripts: sendMessageToWorkerScript,
+  sendMessageToWorkerScriptsAndWaitForResponse:
+    sendMessageToWorkerScriptAndWaitForResponse,
 };
 
 self.fetch = getFetch(pageState);

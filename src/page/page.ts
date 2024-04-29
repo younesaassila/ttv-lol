@@ -7,8 +7,8 @@ import {
   getSendMessageToContentScriptAndWaitForResponse,
   getSendMessageToPageScript,
   getSendMessageToPageScriptAndWaitForResponse,
-  getSendMessageToWorkerScript,
-  getSendMessageToWorkerScriptAndWaitForResponse,
+  getSendMessageToWorkerScripts,
+  getSendMessageToWorkerScriptsAndWaitForResponse,
 } from "./sendMessage";
 import type { PageState } from "./types";
 
@@ -22,21 +22,21 @@ const sendMessageToContentScriptAndWaitForResponse =
 const sendMessageToPageScript = getSendMessageToPageScript();
 const sendMessageToPageScriptAndWaitForResponse =
   getSendMessageToPageScriptAndWaitForResponse();
-const sendMessageToWorkerScript = getSendMessageToWorkerScript();
-const sendMessageToWorkerScriptAndWaitForResponse =
-  getSendMessageToWorkerScriptAndWaitForResponse();
+const sendMessageToWorkerScripts = getSendMessageToWorkerScripts();
+const sendMessageToWorkerScriptsAndWaitForResponse =
+  getSendMessageToWorkerScriptsAndWaitForResponse();
 
 const pageState: PageState = {
   isChromium: params.isChromium,
   scope: "page",
   state: undefined,
-  twitchWorker: undefined,
+  twitchWorkers: [],
   sendMessageToContentScript,
   sendMessageToContentScriptAndWaitForResponse,
   sendMessageToPageScript,
   sendMessageToPageScriptAndWaitForResponse,
-  sendMessageToWorkerScript,
-  sendMessageToWorkerScriptAndWaitForResponse,
+  sendMessageToWorkerScripts,
+  sendMessageToWorkerScriptsAndWaitForResponse,
 };
 
 const NATIVE_FETCH = window.fetch;
@@ -94,7 +94,7 @@ window.Worker = class Worker extends window.Worker {
       new Blob([wrapperScript], { type: "text/javascript" })
     );
     super(wrapperScriptURL, options);
-    pageState.twitchWorker = this;
+    pageState.twitchWorkers.push(this);
     this.addEventListener("message", event => {
       if (
         event.data?.type === MessageType.ContentScriptMessage ||
@@ -112,7 +112,7 @@ let sendStoreStateToWorker = false;
 window.addEventListener("message", event => {
   // Relay messages from the content script to the worker script.
   if (event.data?.type === MessageType.WorkerScriptMessage) {
-    sendMessageToWorkerScript(pageState.twitchWorker, event.data.message);
+    sendMessageToWorkerScripts(pageState.twitchWorkers, event.data.message);
     return;
   }
 
@@ -124,7 +124,7 @@ window.addEventListener("message", event => {
   switch (message.type) {
     case MessageType.GetStoreState: // From Worker
       if (pageState.state != null) {
-        sendMessageToWorkerScript(pageState.twitchWorker, {
+        sendMessageToWorkerScripts(pageState.twitchWorkers, {
           type: MessageType.GetStoreStateResponse,
           state: pageState.state,
         });
@@ -142,7 +142,7 @@ window.addEventListener("message", event => {
       const state = message.state;
       pageState.state = state;
       if (sendStoreStateToWorker) {
-        sendMessageToWorkerScript(pageState.twitchWorker, {
+        sendMessageToWorkerScripts(pageState.twitchWorkers, {
           type: MessageType.GetStoreStateResponse,
           state,
         });
@@ -211,7 +211,7 @@ onChannelChange((_channelName, oldChannelName) => {
     type: MessageType.ClearStats,
     channelName: oldChannelName,
   });
-  sendMessageToWorkerScript(pageState.twitchWorker, {
+  sendMessageToWorkerScripts(pageState.twitchWorkers, {
     type: MessageType.ClearStats,
     channelName: oldChannelName,
   });
