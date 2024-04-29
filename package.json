@@ -1,6 +1,6 @@
 {
   "name": "ttv-lol-pro",
-  "version": "2.3.6",
+  "version": "2.3.7",
   "description": "TTV LOL PRO removes most livestream ads from Twitch.",
   "@parcel/bundler-default": {
     "minBundles": 10000000,
