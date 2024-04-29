@@ -115,6 +115,9 @@ function setProxyStatus(
   if (status.reason) {
     reasonElement.textContent = status.reason;
     reasonElement.style.display = "";
+  } else if (status.stats) {
+    reasonElement.textContent = `Proxied: ${status.stats.proxied} | Not proxied: ${status.stats.notProxied}`;
+    reasonElement.style.display = "";
   } else {
     reasonElement.style.display = "none";
   }

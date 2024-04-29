@@ -73,6 +73,7 @@ body {
 }
 
 main {
+  display: none;
   padding: 2rem;
 }
 
