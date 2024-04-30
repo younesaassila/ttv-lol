@@ -35,7 +35,7 @@ const pageState: PageState = {
   isChromium: params.isChromium,
   scope: "worker",
   state: undefined,
-  twitchWorkers: [], // FIXME: Always empty in workers. (Could be problematic for Usher manifests in Worker)
+  twitchWorkers: [], // Always empty in workers.
   sendMessageToContentScript,
   sendMessageToContentScriptAndWaitForResponse,
   sendMessageToPageScript,

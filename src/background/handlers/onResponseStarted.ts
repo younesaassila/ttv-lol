@@ -142,7 +142,7 @@ function getProxyFromDetails(
     );
     if (possibleProxies.length === 1)
       return getUrlFromProxyInfo(possibleProxies[0]);
-    // TODO: Set reason to some error message about DNS
+    // TODO: Set reason to some error message about DNS.
     return dnsResponse.host;
   } else {
     const proxyInfo = details.proxyInfo; // Firefox only.
