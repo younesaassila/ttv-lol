@@ -27,8 +27,8 @@ const sendMessageToContentScriptAndWaitForResponse =
 const sendMessageToPageScript = getSendMessageToPageScript();
 const sendMessageToPageScriptAndWaitForResponse =
   getSendMessageToPageScriptAndWaitForResponse();
-const sendMessageToWorkerScript = getSendMessageToWorkerScripts();
-const sendMessageToWorkerScriptAndWaitForResponse =
+const sendMessageToWorkerScripts = getSendMessageToWorkerScripts();
+const sendMessageToWorkerScriptsAndWaitForResponse =
   getSendMessageToWorkerScriptsAndWaitForResponse();
 
 const pageState: PageState = {
@@ -40,9 +40,8 @@ const pageState: PageState = {
   sendMessageToContentScriptAndWaitForResponse,
   sendMessageToPageScript,
   sendMessageToPageScriptAndWaitForResponse,
-  sendMessageToWorkerScripts: sendMessageToWorkerScript,
-  sendMessageToWorkerScriptsAndWaitForResponse:
-    sendMessageToWorkerScriptAndWaitForResponse,
+  sendMessageToWorkerScripts,
+  sendMessageToWorkerScriptsAndWaitForResponse,
 };
 
 self.fetch = getFetch(pageState);
