@@ -39,7 +39,6 @@ const pageState: PageState = {
   sendMessageToWorkerScriptsAndWaitForResponse,
 };
 
-const NATIVE_FETCH = window.fetch;
 window.fetch = getFetch(pageState);
 
 window.Worker = class Worker extends window.Worker {
