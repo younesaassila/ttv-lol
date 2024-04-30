@@ -85,7 +85,7 @@ export default async function onResponseStarted(
         proxied: false,
         proxyHost: streamStatus?.proxyHost ? streamStatus.proxyHost : undefined,
         proxyCountry: streamStatus?.proxyCountry,
-        reason: `Proxied: ${stats.proxied} | Not proxied: ${stats.notProxied}`,
+        reason: streamStatus?.reason ?? "",
         stats,
       });
       console.log(
@@ -98,7 +98,7 @@ export default async function onResponseStarted(
       proxied: true,
       proxyHost: proxy,
       proxyCountry: streamStatus?.proxyCountry,
-      reason: `Proxied: ${stats.proxied} | Not proxied: ${stats.notProxied}`,
+      reason: "",
       stats,
     });
     console.log(
@@ -142,6 +142,7 @@ function getProxyFromDetails(
     );
     if (possibleProxies.length === 1)
       return getUrlFromProxyInfo(possibleProxies[0]);
+    // TODO: Set reason to some error message about DNS.
     return dnsResponse.host;
   } else {
     const proxyInfo = details.proxyInfo; // Firefox only.

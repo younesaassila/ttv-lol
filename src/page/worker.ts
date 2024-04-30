@@ -5,8 +5,8 @@ import {
   getSendMessageToContentScriptAndWaitForResponse,
   getSendMessageToPageScript,
   getSendMessageToPageScriptAndWaitForResponse,
-  getSendMessageToWorkerScript,
-  getSendMessageToWorkerScriptAndWaitForResponse,
+  getSendMessageToWorkerScripts,
+  getSendMessageToWorkerScriptsAndWaitForResponse,
 } from "./sendMessage";
 import type { PageState } from "./types";
 
@@ -27,21 +27,21 @@ const sendMessageToContentScriptAndWaitForResponse =
 const sendMessageToPageScript = getSendMessageToPageScript();
 const sendMessageToPageScriptAndWaitForResponse =
   getSendMessageToPageScriptAndWaitForResponse();
-const sendMessageToWorkerScript = getSendMessageToWorkerScript();
-const sendMessageToWorkerScriptAndWaitForResponse =
-  getSendMessageToWorkerScriptAndWaitForResponse();
+const sendMessageToWorkerScripts = getSendMessageToWorkerScripts();
+const sendMessageToWorkerScriptsAndWaitForResponse =
+  getSendMessageToWorkerScriptsAndWaitForResponse();
 
 const pageState: PageState = {
   isChromium: params.isChromium,
   scope: "worker",
   state: undefined,
-  twitchWorker: undefined, // Can't get the worker instance from inside the worker.
+  twitchWorkers: [], // Always empty in workers.
   sendMessageToContentScript,
   sendMessageToContentScriptAndWaitForResponse,
   sendMessageToPageScript,
   sendMessageToPageScriptAndWaitForResponse,
-  sendMessageToWorkerScript,
-  sendMessageToWorkerScriptAndWaitForResponse,
+  sendMessageToWorkerScripts,
+  sendMessageToWorkerScriptsAndWaitForResponse,
 };
 
 self.fetch = getFetch(pageState);

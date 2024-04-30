@@ -46,10 +46,10 @@ export function getFetch(pageState: PageState): typeof fetch {
             type: MessageType.NewPlaybackAccessTokenResponse,
             newPlaybackAccessToken,
           };
-          pageState.twitchWorker?.postMessage({
-            type: MessageType.WorkerScriptMessage,
-            message,
-          });
+          pageState.sendMessageToWorkerScripts(
+            pageState.twitchWorkers,
+            message
+          );
           break;
       }
     });

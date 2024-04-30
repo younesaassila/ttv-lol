@@ -2,18 +2,15 @@ import type { State } from "../store/types";
 import { MessageType } from "../types";
 
 export type SendMessageFn = (message: any) => void;
-export type SendMessageWorkerFn = (
-  worker: Worker | undefined,
-  message: any
-) => void;
+export type SendMessageWorkersFn = (workers: Worker[], message: any) => void;
 export type SendMessageAndWaitForResponseFn = (
   scope: "page" | "worker",
   message: any,
   responseMessageType: MessageType,
   responseTimeout?: number
 ) => Promise<any>;
-export type SendMessageAndWaitForResponseWorkerFn = (
-  worker: Worker | undefined,
+export type SendMessageAndWaitForResponseWorkersFn = (
+  workers: Worker[],
   message: any,
   responseMessageType: MessageType,
   scope: "page" | "worker",
@@ -24,13 +21,13 @@ export interface PageState {
   isChromium: boolean;
   scope: "page" | "worker";
   state?: State;
-  twitchWorker?: Worker;
+  twitchWorkers: Worker[];
   sendMessageToContentScript: SendMessageFn;
   sendMessageToContentScriptAndWaitForResponse: SendMessageAndWaitForResponseFn;
   sendMessageToPageScript: SendMessageFn;
   sendMessageToPageScriptAndWaitForResponse: SendMessageAndWaitForResponseFn;
-  sendMessageToWorkerScript: SendMessageWorkerFn;
-  sendMessageToWorkerScriptAndWaitForResponse: SendMessageAndWaitForResponseWorkerFn;
+  sendMessageToWorkerScripts: SendMessageWorkersFn;
+  sendMessageToWorkerScriptsAndWaitForResponse: SendMessageAndWaitForResponseWorkersFn;
 }
 
 export interface UsherManifest {

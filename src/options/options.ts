@@ -106,6 +106,8 @@ const generateTwitchTabsReportButtonElement = $(
 ) as HTMLButtonElement;
 // Footer
 const versionElement = $("#version") as HTMLParagraphElement;
+// Main
+const mainElement = $("main") as HTMLElement;
 //#endregion
 
 const DEFAULT_STATE: Readonly<State> = Object.freeze(getDefaultState());
@@ -213,6 +215,8 @@ function main() {
   versionElement.textContent = `Version ${
     browser.runtime.getManifest().version
   }`;
+  // Main
+  mainElement.style.display = "block";
 }
 
 function updateProxyUsage() {

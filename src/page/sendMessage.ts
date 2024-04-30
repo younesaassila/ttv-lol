@@ -1,9 +1,9 @@
 import { MessageType } from "../types";
 import type {
   SendMessageAndWaitForResponseFn,
-  SendMessageAndWaitForResponseWorkerFn,
+  SendMessageAndWaitForResponseWorkersFn,
   SendMessageFn,
-  SendMessageWorkerFn,
+  SendMessageWorkersFn,
 } from "./types";
 
 // TODO: Secure communication between content, page, and worker scripts.
@@ -104,28 +104,34 @@ export function getSendMessageToPageScriptAndWaitForResponse(): SendMessageAndWa
   };
 }
 
-export function getSendMessageToWorkerScript(): SendMessageWorkerFn {
-  return (worker: Worker | undefined, message: any) =>
-    sendMessage(worker, MessageType.WorkerScriptMessage, message);
+export function getSendMessageToWorkerScripts(): SendMessageWorkersFn {
+  return (workers: Worker[], message: any) =>
+    workers.forEach(worker =>
+      sendMessage(worker, MessageType.WorkerScriptMessage, message)
+    );
 }
 
-export function getSendMessageToWorkerScriptAndWaitForResponse(): SendMessageAndWaitForResponseWorkerFn {
+export function getSendMessageToWorkerScriptsAndWaitForResponse(): SendMessageAndWaitForResponseWorkersFn {
   return async (
-    worker: Worker | undefined,
+    workers: Worker[],
     message: any,
     responseMessageType: MessageType,
     scope: "page" | "worker",
     responseTimeout: number = 5000
   ) => {
-    return sendMessageAndWaitForResponse(
-      worker,
-      MessageType.WorkerScriptMessage,
-      message,
-      scope === "page"
-        ? MessageType.PageScriptMessage
-        : MessageType.WorkerScriptMessage,
-      responseMessageType,
-      responseTimeout
+    return Promise.any(
+      workers.map(worker =>
+        sendMessageAndWaitForResponse(
+          worker,
+          MessageType.WorkerScriptMessage,
+          message,
+          scope === "page"
+            ? MessageType.PageScriptMessage
+            : MessageType.WorkerScriptMessage,
+          responseMessageType,
+          responseTimeout
+        )
+      )
     );
   };
 }
