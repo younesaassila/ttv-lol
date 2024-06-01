@@ -16,10 +16,9 @@ import sendAdLog from "../common/ts/sendAdLog";
 import store from "../store";
 import getDefaultState from "../store/getDefaultState";
 import type { State } from "../store/types";
-import { KeyOfType, ProxyRequestType } from "../types";
+import { AllowedResult, KeyOfType, ProxyRequestType } from "../types";
 
 //#region Types
-type AllowedResult = [boolean, string?];
 type InsertMode = "append" | "prepend" | "both";
 type StoreStringArrayKey = KeyOfType<typeof store.state, string[]>;
 type ListOptions = {
@@ -323,12 +322,16 @@ function isOptimizedProxyUrlAllowed(url: string): AllowedResult {
     return [false, "TTV LOL PRO v1 proxies are not compatible"];
   }
 
-  if (/^https?:\/\//i.test(url)) {
-    return [false, "Proxy URLs must not contain a protocol (e.g. 'http://')"];
+  const proxyInfo = getProxyInfoFromUrl(url);
+  if (proxyInfo.host.includes("/")) {
+    return [false, "Proxy URLs must not contain a path (e.g. '/path')"];
   }
 
-  if (url.includes("/")) {
-    return [false, "Proxy URLs must not contain a path (e.g. '/path')"];
+  try {
+    const host = url.substring(url.lastIndexOf("@") + 1, url.length);
+    new URL(`http://${host}`); // Throws if the host is invalid.
+  } catch {
+    return [false, `'${url}' is not a valid proxy URL`];
   }
 
   try {

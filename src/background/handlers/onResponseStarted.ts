@@ -171,7 +171,7 @@ function getProxyFromDetails(
     return getUrlFromProxyInfo(possibleProxies[0]);
   } else {
     const proxyInfo = details.proxyInfo; // Firefox only.
-    if (!proxyInfo || proxyInfo.type === "direct") return null;
+    if (!proxyInfo || proxyInfo.type === "DIRECT") return null;
     return getUrlFromProxyInfo(proxyInfo);
   }
 }
