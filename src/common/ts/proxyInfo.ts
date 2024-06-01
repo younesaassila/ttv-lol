@@ -27,12 +27,12 @@ const defaultPorts: Partial<{
 export function getProxyInfoFromUrl(url: string) {
   let protocol = "";
   if (url.includes("://")) {
-    let [_protocol, urlWithoutProtocol] = url.split("://");
+    const [_protocol, urlWithoutProtocol] = url.split("://");
     protocol = _protocol;
     url = urlWithoutProtocol;
   }
   const lastIndexOfAt = url.lastIndexOf("@");
-  let hostname = url.substring(lastIndexOfAt + 1, url.length);
+  const hostname = url.substring(lastIndexOfAt + 1, url.length);
   const lastIndexOfColon = getLastIndexOfColon(hostname);
 
   let host: string | undefined = undefined;
