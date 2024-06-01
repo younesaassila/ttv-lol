@@ -16,9 +16,10 @@ import sendAdLog from "../common/ts/sendAdLog";
 import store from "../store";
 import getDefaultState from "../store/getDefaultState";
 import type { State } from "../store/types";
-import { AllowedResult, KeyOfType, ProxyRequestType } from "../types";
+import { KeyOfType, ProxyRequestType } from "../types";
 
 //#region Types
+type AllowedResult = [boolean, string?];
 type InsertMode = "append" | "prepend" | "both";
 type StoreStringArrayKey = KeyOfType<typeof store.state, string[]>;
 type ListOptions = {

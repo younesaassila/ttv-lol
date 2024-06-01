@@ -1,7 +1,7 @@
 import { Address6 } from "ip-address";
-import type { ProxyInfo, ProxyScheme } from "../../types";
+import type { ProxyInfo } from "../../types";
 
-export const proxySchemes: { [key: string]: ProxyScheme } = {
+export const proxySchemes = {
   direct: "DIRECT",
   http: "PROXY",
   https: "HTTPS",
@@ -9,19 +9,32 @@ export const proxySchemes: { [key: string]: ProxyScheme } = {
   socks4: "SOCKS4",
   socks5: "SOCKS5",
   quic: "QUIC",
+} as const;
+
+type Protocol = keyof typeof proxySchemes;
+
+const defaultPorts: Partial<{
+  [key in keyof typeof proxySchemes]: number;
+}> = {
+  http: 80,
+  https: 443,
+  socks: 1080,
+  socks4: 1080,
+  socks5: 1080,
+  quic: 443,
 };
 
 export function getProxyInfoFromUrl(url: string) {
   let protocol = "";
   if (url.includes("://")) {
-    let [proto, urlWithoutProtocol] = url.split("://");
-    protocol = proto;
+    let [_protocol, urlWithoutProtocol] = url.split("://");
+    protocol = _protocol;
     url = urlWithoutProtocol;
   }
   const lastIndexOfAt = url.lastIndexOf("@");
   let hostname = url.substring(lastIndexOfAt + 1, url.length);
   const lastIndexOfColon = getLastIndexOfColon(hostname);
-  hostname;
+
   let host: string | undefined = undefined;
   let port: number | undefined = undefined;
   if (lastIndexOfColon === -1) {
@@ -46,8 +59,10 @@ export function getProxyInfoFromUrl(url: string) {
     password = credentials.substring(indexOfColon + 1, credentials.length);
   }
 
+  port = port ? port : defaultPorts[protocol as Protocol];
+
   return {
-    type: proxySchemes[protocol] ?? "PROXY",
+    type: proxySchemes[protocol as Protocol] ?? "PROXY",
     protocol,
     host,
     port,

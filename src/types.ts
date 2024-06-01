@@ -3,8 +3,6 @@ export type KeyOfType<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: any;
 };
 
-export type AllowedResult = [boolean, string?];
-
 // From https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md#proxy-server-schemes
 export type ProxyScheme =
   | "DIRECT"
