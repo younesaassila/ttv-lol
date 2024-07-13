@@ -80,7 +80,7 @@ window.Worker = class Worker extends window.Worker {
     const newScriptURL = URL.createObjectURL(
       new Blob([newScript], { type: "text/javascript" })
     );
-    // Required for VAFT compatibility.
+    // Required for VAFT (<9.0.0) compatibility.
     const wrapperScript = `
       try {
         importScripts('${newScriptURL}');
