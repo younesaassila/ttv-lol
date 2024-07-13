@@ -1,4 +1,4 @@
-import ip from "ip";
+import { Address4, Address6 } from "ip-address";
 import store from "../../store";
 import type { DnsResponse, DnsResponseJson } from "../../types";
 import { getProxyInfoFromUrl } from "./proxyInfo";
@@ -25,7 +25,7 @@ export default async function updateDnsResponses() {
     }
 
     // If the host is an IP address, we don't need to make a DNS request.
-    const isIp = ip.isV4Format(host) || ip.isV6Format(host);
+    const isIp = Address4.isValid(host) || Address6.isValid(host);
     if (isIp) {
       if (dnsResponseIndex !== -1) {
         store.state.dnsResponses.splice(dnsResponseIndex, 1);

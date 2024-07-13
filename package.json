@@ -43,13 +43,14 @@
   "license": "GPL-3.0",
   "dependencies": {
     "bowser": "^2.11.0",
-    "ip": "^2.0.1",
+    "ip-address": "^9.0.5",
     "m3u8-parser": "^7.1.0"
   },
   "devDependencies": {
     "@parcel/config-webextension": "^2.12.0",
     "@types/chrome": "^0.0.268",
-    "@types/ip": "^1.1.3",
+    "@types/jsbn": "^1.2.33",
+    "@types/node": "^20.14.10",
     "@types/webextension-polyfill": "^0.10.7",
     "buffer": "^6.0.3",
     "os-browserify": "^0.3.0",

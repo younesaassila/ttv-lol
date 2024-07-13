@@ -1,4 +1,5 @@
-import ip from "ip";
+import { Address4, Address6 } from "ip-address";
+import isPrivateIp from "./isPrivateIp";
 import { getProxyInfoFromUrl } from "./proxyInfo";
 
 /**
@@ -12,16 +13,16 @@ export function anonymizeIpAddress(url: string): string {
 
   let proxyHost = proxyInfo.host;
 
-  const isIPv4 = ip.isV4Format(proxyHost);
-  const isIPv6 = ip.isV6Format(proxyHost);
+  const isIPv4 = Address4.isValid(proxyHost);
+  const isIPv6 = Address6.isValid(proxyHost);
   const isIP = isIPv4 || isIPv6;
-  const isPublicIP = isIP && !ip.isPrivate(proxyHost);
+  const isPublicIP = isIP && !isPrivateIp(proxyHost);
 
   if (isPublicIP) {
     if (isIPv4) {
-      proxyHost = ip.mask(proxyHost, "255.255.0.0").replace(/\.0\.0$/, ".*.*");
+      proxyHost = new Address4(proxyHost).mask(16);
     } else if (isIPv6) {
-      proxyHost = ip.mask(proxyHost, "ffff:ffff:ffff:ffff:0000:0000:0000:0000");
+      proxyHost = new Address6(proxyHost).mask(64);
     }
   }
 
