@@ -32,7 +32,7 @@ export default async function onResponseStarted(
   try {
     proxy = getProxyFromDetails(details);
   } catch (error) {
-    errorMessage = `${error}`;
+    errorMessage = error instanceof Error ? error.message : `${error}`;
   }
 
   const requestParams = {
@@ -156,7 +156,7 @@ function getProxyFromDetails(
       proxies.length !== 0 && store.state.dnsResponses.length === 0;
     if (isDnsError) {
       throw new Error(
-        "Cannot detect if requests are proxied or not (DNS error)"
+        "Cannot detect if requests are being proxied due to a DNS error"
       );
     }
     const ip = details.ip;
