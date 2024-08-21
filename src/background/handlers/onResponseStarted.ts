@@ -87,21 +87,19 @@ export default async function onResponseStarted(
     const stats = streamStatus?.stats ?? { proxied: 0, notProxied: 0 };
 
     if (!proxy) {
-      let reason = errorMessage ?? streamStatus?.reason ?? "";
-      if (isChromium) {
-        try {
-          const proxySettings = await browser.proxy.settings.get({});
-          switch (proxySettings.levelOfControl) {
-            case "controlled_by_other_extensions":
-              reason = "Proxy settings controlled by other extension";
-              break;
-            case "not_controllable":
-              reason = "Proxy settings not controllable";
-              break;
-          }
-        } catch {}
-      }
       stats.notProxied++;
+      let reason = errorMessage ?? streamStatus?.reason ?? "";
+      try {
+        const proxySettings = await browser.proxy.settings.get({});
+        switch (proxySettings.levelOfControl) {
+          case "controlled_by_other_extensions":
+            reason = "Proxy settings controlled by other extension";
+            break;
+          case "not_controllable":
+            reason = "Proxy settings not controllable";
+            break;
+        }
+      } catch {}
       setStreamStatus(channelName, {
         proxied: false,
         proxyHost: streamStatus?.proxyHost ? streamStatus.proxyHost : undefined,
