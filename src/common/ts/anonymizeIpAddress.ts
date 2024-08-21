@@ -20,9 +20,19 @@ export function anonymizeIpAddress(url: string): string {
 
   if (isPublicIP) {
     if (isIPv4) {
-      proxyHost = new Address4(proxyHost).mask(16);
+      proxyHost = new Address4(proxyHost)
+        .correctForm()
+        .split(".")
+        .map((byte, index) => (index < 2 ? byte : "xxx"))
+        .join(".");
     } else if (isIPv6) {
-      proxyHost = new Address6(proxyHost).mask(64);
+      const bytes = new Address6(proxyHost).toByteArray();
+      const anonymizedBytes = bytes.map((byte, index) =>
+        index < 6 ? byte : 0x0
+      );
+      proxyHost = Address6.fromByteArray(anonymizedBytes)
+        .correctForm()
+        .replace(/::$/, "::xxxx");
     }
   }
 
