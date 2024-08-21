@@ -103,9 +103,6 @@ export default async function onResponseStarted(
             case "not_controllable":
               reason = "Proxy settings not controllable";
               break;
-            case "controllable_by_this_extension":
-              reason = "Proxy settings not controlled by extension";
-              break;
           }
         } catch {}
       }
