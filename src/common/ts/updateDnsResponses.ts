@@ -4,9 +4,10 @@ import type { DnsResponse, DnsResponseJson } from "../../types";
 import { getProxyInfoFromUrl } from "./proxyInfo";
 
 export default async function updateDnsResponses() {
-  const proxies = store.state.optimizedProxiesEnabled
-    ? store.state.optimizedProxies
-    : store.state.normalProxies;
+  const proxies = [
+    ...store.state.optimizedProxies,
+    ...store.state.normalProxies,
+  ];
   const proxyInfoArray = proxies.map(getProxyInfoFromUrl);
 
   for (const proxyInfo of proxyInfoArray) {
@@ -27,16 +28,17 @@ export default async function updateDnsResponses() {
     // If the host is an IP address, we don't need to make a DNS request.
     const isIp = Address4.isValid(host) || Address6.isValid(host);
     if (isIp) {
-      if (dnsResponseIndex !== -1) {
-        store.state.dnsResponses.splice(dnsResponseIndex, 1);
-      }
       const dnsResponse: DnsResponse = {
         host,
         ips: [host],
         timestamp: Date.now(),
         ttl: Infinity,
       };
-      store.state.dnsResponses.push(dnsResponse);
+      if (dnsResponseIndex !== -1) {
+        store.state.dnsResponses.splice(dnsResponseIndex, 1, dnsResponse);
+      } else {
+        store.state.dnsResponses.push(dnsResponse);
+      }
       continue;
     }
 
@@ -59,16 +61,17 @@ export default async function updateDnsResponses() {
       }
       const { Answer } = data;
 
-      if (dnsResponseIndex !== -1) {
-        store.state.dnsResponses.splice(dnsResponseIndex, 1);
-      }
       const dnsResponse: DnsResponse = {
         host,
         ips: Answer.map(answer => answer.data),
         timestamp: Date.now(),
         ttl: Math.max(Math.max(...Answer.map(answer => answer.TTL)), 300),
       };
-      store.state.dnsResponses.push(dnsResponse);
+      if (dnsResponseIndex !== -1) {
+        store.state.dnsResponses.splice(dnsResponseIndex, 1, dnsResponse);
+      } else {
+        store.state.dnsResponses.push(dnsResponse);
+      }
     } catch (error) {
       console.error(error);
     }
