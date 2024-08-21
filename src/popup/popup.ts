@@ -231,6 +231,7 @@ copyDebugInfoButtonElement.addEventListener("click", async e => {
           `Stream status:\n`,
           status != null
             ? [
+                `- Reason: ${status.reason ?? "N/A"}\n`,
                 `- Proxied: ${status.stats?.proxied ?? "N/A"}, Not proxied: ${
                   status.stats?.notProxied ?? "N/A"
                 }\n`,
