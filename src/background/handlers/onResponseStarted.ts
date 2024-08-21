@@ -19,6 +19,11 @@ import { getStreamStatus, setStreamStatus } from "../../common/ts/streamStatus";
 import store from "../../store";
 import { ProxyInfo, ProxyRequestType } from "../../types";
 
+//#region Types
+type LevelOfControlType =
+  chrome.types.ChromeSettingGetResultDetails["levelOfControl"];
+//#endregion
+
 export default async function onResponseStarted(
   details: WebRequest.OnResponseStartedDetailsType & {
     proxyInfo?: ProxyInfo;
@@ -79,13 +84,31 @@ export default async function onResponseStarted(
       findChannelFromTwitchTvUrl(tabUrl);
     const streamStatus = getStreamStatus(channelName);
     const stats = streamStatus?.stats ?? { proxied: 0, notProxied: 0 };
+
     if (!proxy) {
+      let reason = streamStatus?.reason ?? "";
+      if (isChromium) {
+        try {
+          const levelOfControl = await getProxyLevelOfControl();
+          switch (levelOfControl) {
+            case "controlled_by_other_extensions":
+              reason = "Proxy settings controlled by other extension";
+              break;
+            case "not_controllable":
+              reason = "Proxy settings not controllable";
+              break;
+            case "controllable_by_this_extension":
+              reason = "Proxy settings not controlled by extension";
+              break;
+          }
+        } catch {}
+      }
       stats.notProxied++;
       setStreamStatus(channelName, {
         proxied: false,
         proxyHost: streamStatus?.proxyHost ? streamStatus.proxyHost : undefined,
         proxyCountry: streamStatus?.proxyCountry,
-        reason: streamStatus?.reason ?? "",
+        reason,
         stats,
       });
       console.log(
@@ -93,6 +116,7 @@ export default async function onResponseStarted(
       );
       return;
     }
+
     stats.proxied++;
     setStreamStatus(channelName, {
       proxied: true,
@@ -149,4 +173,13 @@ function getProxyFromDetails(
     if (!proxyInfo || proxyInfo.type === "direct") return null;
     return getUrlFromProxyInfo(proxyInfo);
   }
+}
+
+async function getProxyLevelOfControl(): Promise<LevelOfControlType> {
+  return new Promise((resolve, reject) => {
+    chrome.proxy.settings.get({}, ({ levelOfControl }) => {
+      resolve(levelOfControl);
+    });
+    setTimeout(() => reject("Timeout"), 1000);
+  });
 }
