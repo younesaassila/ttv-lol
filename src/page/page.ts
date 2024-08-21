@@ -41,11 +41,19 @@ const pageState: PageState = {
 
 window.fetch = getFetch(pageState);
 
-window.Worker = class Worker extends window.Worker {
+const NATIVE_WORKER = window.Worker;
+window.Worker = class Worker extends NATIVE_WORKER {
   constructor(scriptURL: string | URL, options?: WorkerOptions) {
     const fullUrl = toAbsoluteUrl(scriptURL.toString());
     const isTwitchWorker = fullUrl.includes(".twitch.tv");
     if (!isTwitchWorker) {
+      super(scriptURL, options);
+      return;
+    }
+    // Required for VAFT (>=12.0.0) compatibility.
+    const isAlreadyHooked = NATIVE_WORKER.toString().includes("twitch");
+    if (isAlreadyHooked) {
+      console.error("[TTV LOL PRO] Twitch worker is already hooked.");
       super(scriptURL, options);
       return;
     }
