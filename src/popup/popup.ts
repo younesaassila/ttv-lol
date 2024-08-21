@@ -116,7 +116,7 @@ function setProxyStatus(
     reasonElement.textContent = status.reason;
     reasonElement.style.display = "";
   } else if (status.stats) {
-    reasonElement.textContent = `Proxied: ${status.stats.proxied} | Not proxied: ${status.stats.notProxied}`;
+    reasonElement.textContent = getProxyStatusStatsMessage(status.stats);
     reasonElement.style.display = "";
   } else {
     reasonElement.style.display = "none";
@@ -133,8 +133,20 @@ function setProxyStatus(
   }
 }
 
+function getProxyStatusStatsMessage(
+  stats: NonNullable<StreamStatus["stats"]>
+): string {
+  const formatter = new Intl.NumberFormat("en-US");
+  return `Proxied: ${formatter.format(
+    stats.proxied
+  )} | Not proxied: ${formatter.format(stats.notProxied)}`;
+}
+
 function getProxyStatusMessages(status: StreamStatus): string[] {
   const messages = [];
+  if (status.reason && status.stats) {
+    messages.push(getProxyStatusStatsMessage(status.stats));
+  }
   if (status.proxyHost) {
     messages.push(`Proxy: ${anonymizeIpAddress(status.proxyHost)}`);
   }
