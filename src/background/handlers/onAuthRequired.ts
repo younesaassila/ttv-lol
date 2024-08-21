@@ -6,7 +6,7 @@ const pendingRequests: string[] = [];
 
 export default function onAuthRequired(
   details: WebRequest.OnAuthRequiredDetailsType
-): undefined | WebRequest.BlockingResponseOrPromise {
+): WebRequest.BlockingResponseOrPromise | undefined {
   if (!details.isProxy) return;
 
   if (pendingRequests.includes(details.requestId)) {

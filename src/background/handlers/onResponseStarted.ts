@@ -19,11 +19,6 @@ import { getStreamStatus, setStreamStatus } from "../../common/ts/streamStatus";
 import store from "../../store";
 import { ProxyInfo, ProxyRequestType } from "../../types";
 
-//#region Types
-type LevelOfControlType =
-  chrome.types.ChromeSettingGetResultDetails["levelOfControl"];
-//#endregion
-
 export default async function onResponseStarted(
   details: WebRequest.OnResponseStartedDetailsType & {
     proxyInfo?: ProxyInfo;
@@ -37,7 +32,7 @@ export default async function onResponseStarted(
   try {
     proxy = getProxyFromDetails(details);
   } catch (error) {
-    errorMessage = error instanceof Error ? error.message : "Unknown error";
+    errorMessage = `${error}`;
   }
 
   const requestParams = {
@@ -95,8 +90,8 @@ export default async function onResponseStarted(
       let reason = errorMessage ?? streamStatus?.reason ?? "";
       if (isChromium) {
         try {
-          const levelOfControl = await getProxyLevelOfControl();
-          switch (levelOfControl) {
+          const proxySettings = await browser.proxy.settings.get({});
+          switch (proxySettings.levelOfControl) {
             case "controlled_by_other_extensions":
               reason = "Proxy settings controlled by other extension";
               break;
@@ -161,7 +156,7 @@ function getProxyFromDetails(
       proxies.length !== 0 && store.state.dnsResponses.length === 0;
     if (isDnsError) {
       throw new Error(
-        "A DNS error occurred preventing the extension from detecting if requests are proxied"
+        "Cannot detect if requests are proxied or not (DNS error)"
       );
     }
     const ip = details.ip;
@@ -181,13 +176,4 @@ function getProxyFromDetails(
     if (!proxyInfo || proxyInfo.type === "direct") return null;
     return getUrlFromProxyInfo(proxyInfo);
   }
-}
-
-async function getProxyLevelOfControl(): Promise<LevelOfControlType> {
-  return new Promise((resolve, reject) => {
-    chrome.proxy.settings.get({}, ({ levelOfControl }) => {
-      resolve(levelOfControl);
-    });
-    setTimeout(() => reject("Timeout"), 1000);
-  });
 }

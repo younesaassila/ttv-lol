@@ -15,7 +15,7 @@ export default function onContentScriptMessage(
   message: any,
   sender: Runtime.MessageSender,
   sendResponse: (message: any) => void
-): true | undefined | Promise<any> {
+): Promise<any> | true | undefined {
   if (message.type === MessageType.EnableFullMode) {
     if (!sender.tab?.id) return;
 
