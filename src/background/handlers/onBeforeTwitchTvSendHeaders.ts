@@ -8,7 +8,7 @@ import { twitchTvHostRegex } from "../../common/ts/regexes";
 
 export default function onBeforeTwitchTvSendHeaders(
   details: WebRequest.OnBeforeSendHeadersDetailsType
-): void | WebRequest.BlockingResponseOrPromise {
+): undefined | WebRequest.BlockingResponseOrPromise {
   const host = getHostFromUrl(details.url);
   if (!host || !twitchTvHostRegex.test(host)) return;
 

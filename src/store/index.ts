@@ -33,7 +33,7 @@ class Store<T extends Record<string | symbol, any>> {
       if (area !== this._areaName) return;
       for (const [key, { newValue }] of Object.entries(changes)) {
         if (newValue === undefined) continue; // Ignore deletions.
-        this._state[key as keyof T] = newValue;
+        this._state[key as keyof T] = newValue as T[keyof T];
       }
       this.dispatchEvent("change", changes);
     });
@@ -46,7 +46,7 @@ class Store<T extends Record<string | symbol, any>> {
 
     this._state = this._getDefaultState();
     for (const [key, value] of Object.entries(storage)) {
-      this._state[key as keyof T] = value;
+      this._state[key as keyof T] = value as T[keyof T];
     }
     const stateHandler = getStateHandler(this._areaName, this._state);
     const stateProxy = new Proxy(this._state, stateHandler);

@@ -80,7 +80,7 @@ function onStoreChange(changes: Record<string, Storage.StorageChange>) {
   });
 }
 
-function onBackgroundMessage(message: any) {
+function onBackgroundMessage(message: any): undefined {
   switch (message.type) {
     case MessageType.EnableFullModeResponse:
       window.postMessage({

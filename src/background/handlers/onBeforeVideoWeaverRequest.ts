@@ -11,7 +11,7 @@ export default function onBeforeVideoWeaverRequest(
   details: WebRequest.OnBeforeRequestDetailsType & {
     proxyInfo?: ProxyInfo;
   }
-): void | WebRequest.BlockingResponseOrPromise {
+): undefined | WebRequest.BlockingResponseOrPromise {
   // Filter to video-weaver responses.
   const host = getHostFromUrl(details.url);
   if (!host || !videoWeaverHostRegex.test(host)) return;
