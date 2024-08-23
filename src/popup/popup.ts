@@ -8,7 +8,6 @@ import {
 import { alpha2 } from "../common/ts/countryCodes";
 import findChannelFromTwitchTvUrl from "../common/ts/findChannelFromTwitchTvUrl";
 import isChannelWhitelisted from "../common/ts/isChannelWhitelisted";
-import isChromium from "../common/ts/isChromium";
 import store from "../store";
 import type { StreamStatus } from "../types";
 
@@ -116,7 +115,7 @@ function setProxyStatus(
     reasonElement.textContent = status.reason;
     reasonElement.style.display = "";
   } else if (status.stats) {
-    reasonElement.textContent = `Proxied: ${status.stats.proxied} | Not proxied: ${status.stats.notProxied}`;
+    reasonElement.textContent = getProxyStatusStatsMessage(status.stats);
     reasonElement.style.display = "";
   } else {
     reasonElement.style.display = "none";
@@ -133,8 +132,20 @@ function setProxyStatus(
   }
 }
 
+function getProxyStatusStatsMessage(
+  stats: NonNullable<StreamStatus["stats"]>
+): string {
+  const formatter = new Intl.NumberFormat("en-US");
+  return `Proxied: ${formatter.format(
+    stats.proxied
+  )} | Not proxied: ${formatter.format(stats.notProxied)}`;
+}
+
 function getProxyStatusMessages(status: StreamStatus): string[] {
   const messages = [];
+  if (status.reason && status.stats) {
+    messages.push(getProxyStatusStatsMessage(status.stats));
+  }
   if (status.proxyHost) {
     messages.push(`Proxy: ${anonymizeIpAddress(status.proxyHost)}`);
   }
@@ -219,6 +230,7 @@ copyDebugInfoButtonElement.addEventListener("click", async e => {
           `Stream status:\n`,
           status != null
             ? [
+                `- Reason: ${status.reason ?? "N/A"}\n`,
                 `- Proxied: ${status.stats?.proxied ?? "N/A"}, Not proxied: ${
                   status.stats?.notProxied ?? "N/A"
                 }\n`,
@@ -230,9 +242,7 @@ copyDebugInfoButtonElement.addEventListener("click", async e => {
                 `- Country: ${status.proxyCountry ?? "N/A"}\n`,
               ].join("")
             : "",
-          isChromium
-            ? `Proxy level of control: ${proxySettings.levelOfControl}\n`
-            : "",
+          `Proxy level of control: ${proxySettings.levelOfControl}\n`,
         ].join("")
       : "",
     store.state.adLog.length > 0

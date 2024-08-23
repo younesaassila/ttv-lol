@@ -14,8 +14,8 @@ const fetchTimeoutMsOverride: Map<ProxyRequestType, number> = new Map([
 export default function onContentScriptMessage(
   message: any,
   sender: Runtime.MessageSender,
-  sendResponse: () => void
-): true | void | Promise<any> {
+  sendResponse: (message: any) => void
+): Promise<any> | true | undefined {
   if (message.type === MessageType.EnableFullMode) {
     if (!sender.tab?.id) return;
 

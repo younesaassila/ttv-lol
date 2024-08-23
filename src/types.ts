@@ -82,6 +82,7 @@ export const enum MessageType {
   UsherResponse = "TLP_UsherResponse",
   NewPlaybackAccessToken = "TLP_NewPlaybackAccessToken",
   NewPlaybackAccessTokenResponse = "TLP_NewPlaybackAccessTokenResponse",
+  MultipleAdBlockersInUse = "TLP_MultipleAdBlockersInUse",
   ClearStats = "TLP_ClearStats",
 }
 

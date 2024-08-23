@@ -27,7 +27,13 @@ export default async function onResponseStarted(
   const host = getHostFromUrl(details.url);
   if (!host) return;
 
-  const proxy = getProxyFromDetails(details);
+  let proxy: string | null = null;
+  let errorMessage: string | null = null;
+  try {
+    proxy = getProxyFromDetails(details);
+  } catch (error) {
+    errorMessage = error instanceof Error ? error.message : `${error}`;
+  }
 
   const requestParams = {
     isChromium: isChromium,
@@ -79,13 +85,26 @@ export default async function onResponseStarted(
       findChannelFromTwitchTvUrl(tabUrl);
     const streamStatus = getStreamStatus(channelName);
     const stats = streamStatus?.stats ?? { proxied: 0, notProxied: 0 };
+
     if (!proxy) {
       stats.notProxied++;
+      let reason = errorMessage ?? streamStatus?.reason ?? "";
+      try {
+        const proxySettings = await browser.proxy.settings.get({});
+        switch (proxySettings.levelOfControl) {
+          case "controlled_by_other_extensions":
+            reason = "Proxy settings controlled by other extension";
+            break;
+          case "not_controllable":
+            reason = "Proxy settings not controllable";
+            break;
+        }
+      } catch {}
       setStreamStatus(channelName, {
         proxied: false,
         proxyHost: streamStatus?.proxyHost ? streamStatus.proxyHost : undefined,
         proxyCountry: streamStatus?.proxyCountry,
-        reason: streamStatus?.reason ?? "",
+        reason,
         stats,
       });
       console.log(
@@ -93,6 +112,7 @@ export default async function onResponseStarted(
       );
       return;
     }
+
     stats.proxied++;
     setStreamStatus(channelName, {
       proxied: true,
@@ -126,24 +146,29 @@ function getProxyFromDetails(
   }
 ): string | null {
   if (isChromium) {
+    const proxies = [
+      ...store.state.optimizedProxies,
+      ...store.state.normalProxies,
+    ];
+    const isDnsError =
+      proxies.length !== 0 && store.state.dnsResponses.length === 0;
+    if (isDnsError) {
+      throw new Error(
+        "Cannot detect if requests are being proxied due to a DNS error"
+      );
+    }
     const ip = details.ip;
     if (!ip) return null;
     const dnsResponse = store.state.dnsResponses.find(
       dnsResponse => dnsResponse.ips.indexOf(ip) !== -1
     );
     if (!dnsResponse) return null;
-    const proxies = [
-      ...store.state.optimizedProxies,
-      ...store.state.normalProxies,
-    ];
     const proxyInfoArray = proxies.map(getProxyInfoFromUrl);
     const possibleProxies = proxyInfoArray.filter(
       proxy => proxy.host === dnsResponse.host
     );
-    if (possibleProxies.length === 1)
-      return getUrlFromProxyInfo(possibleProxies[0]);
-    // TODO: Set reason to some error message about DNS.
-    return dnsResponse.host;
+    if (possibleProxies.length === 0) return dnsResponse.host;
+    return getUrlFromProxyInfo(possibleProxies[0]);
   } else {
     const proxyInfo = details.proxyInfo; // Firefox only.
     if (!proxyInfo || proxyInfo.type === "direct") return null;

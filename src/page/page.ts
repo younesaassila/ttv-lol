@@ -41,11 +41,22 @@ const pageState: PageState = {
 
 window.fetch = getFetch(pageState);
 
-window.Worker = class Worker extends window.Worker {
+const NATIVE_WORKER = window.Worker;
+window.Worker = class Worker extends NATIVE_WORKER {
   constructor(scriptURL: string | URL, options?: WorkerOptions) {
     const fullUrl = toAbsoluteUrl(scriptURL.toString());
     const isTwitchWorker = fullUrl.includes(".twitch.tv");
     if (!isTwitchWorker) {
+      super(scriptURL, options);
+      return;
+    }
+    // Required for VAFT (>=12.0.0) compatibility.
+    const isAlreadyHooked = NATIVE_WORKER.toString().includes("twitch");
+    if (isAlreadyHooked) {
+      console.info("[TTV LOL PRO] Another Twitch ad blocker is in use.");
+      sendMessageToContentScript({
+        type: MessageType.MultipleAdBlockersInUse,
+      });
       super(scriptURL, options);
       return;
     }
@@ -80,7 +91,7 @@ window.Worker = class Worker extends window.Worker {
     const newScriptURL = URL.createObjectURL(
       new Blob([newScript], { type: "text/javascript" })
     );
-    // Required for VAFT compatibility.
+    // Required for VAFT (<9.0.0) compatibility.
     const wrapperScript = `
       try {
         importScripts('${newScriptURL}');

@@ -1,4 +1,4 @@
-import ip from "ip";
+import { Address6 } from "ip-address";
 import type { ProxyInfo } from "../../types";
 
 export function getProxyInfoFromUrl(
@@ -71,14 +71,14 @@ export function getUrlFromProxyInfo(proxyInfo: ProxyInfo): string {
   } else if (username) {
     url = `${username}@`;
   }
-  const isIPv4 = ip.isV4Format(host);
-  const isIPv6 = ip.isV6Format(host);
-  // isV6Format() returns true for IPv4 addresses, so we need to exclude those.
-  if (isIPv6 && !isIPv4) {
+  const isIPv6 = Address6.isValid(host);
+  if (isIPv6) {
     url += `[${host}]`;
   } else {
     url += host;
   }
-  if (port) url += `:${port}`;
+  if (port) {
+    url += `:${port}`;
+  }
   return url;
 }

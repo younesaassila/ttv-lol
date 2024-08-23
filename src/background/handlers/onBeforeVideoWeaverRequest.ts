@@ -11,7 +11,7 @@ export default function onBeforeVideoWeaverRequest(
   details: WebRequest.OnBeforeRequestDetailsType & {
     proxyInfo?: ProxyInfo;
   }
-): void | WebRequest.BlockingResponseOrPromise {
+): WebRequest.BlockingResponseOrPromise | undefined {
   // Filter to video-weaver responses.
   const host = getHostFromUrl(details.url);
   if (!host || !videoWeaverHostRegex.test(host)) return;
@@ -34,9 +34,7 @@ export default function onBeforeVideoWeaverRequest(
     if (isDuplicate) return text;
 
     const channelName = findChannelFromVideoWeaverUrl(details.url);
-    const isPurpleScreen = textLower.includes(
-      "https://help.twitch.tv/s/article/ad-experience-on-twitch"
-    );
+    const isPurpleScreen = textLower.includes("https://help.twitch.tv/");
     const proxy =
       details.proxyInfo && details.proxyInfo.type !== "direct"
         ? getUrlFromProxyInfo(details.proxyInfo)

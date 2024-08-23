@@ -32,7 +32,7 @@
 </div>
 
 <div align="center">
-  <a href="https://discord.gg/AmtFTPwsyH">
+  <a href="https://discord.ttvlolpro.com/">
     <img
       alt="Discord server"
       src="https://dcbadge.vercel.app/api/server/AmtFTPwsyH"
@@ -78,7 +78,7 @@ TTV LOL PRO is a fork of TTV LOL that:
 
 TTV LOL PRO does not remove banner ads, nor does it remove ads from VODs. For the best experience, we recommend using [uBlock Origin](https://ublockorigin.com/) alongside TTV LOL PRO.
 
-Any questions? Please read the [wiki](https://wiki.cdn-perfprod.com/) first.
+Any questions? Please read the [wiki](https://wiki.ttvlolpro.com/) first.
 
 ## Screenshots
 

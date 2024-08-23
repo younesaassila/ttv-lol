@@ -3,6 +3,7 @@ import workerScriptURL from "url:../page/worker.ts";
 import browser, { Storage } from "webextension-polyfill";
 import findChannelFromTwitchTvUrl from "../common/ts/findChannelFromTwitchTvUrl";
 import isChromium from "../common/ts/isChromium";
+import { getStreamStatus, setStreamStatus } from "../common/ts/streamStatus";
 import store from "../store";
 import type { State } from "../store/types";
 import { MessageType } from "../types";
@@ -80,7 +81,7 @@ function onStoreChange(changes: Record<string, Storage.StorageChange>) {
   });
 }
 
-function onBackgroundMessage(message: any) {
+function onBackgroundMessage(message: any): undefined {
   switch (message.type) {
     case MessageType.EnableFullModeResponse:
       window.postMessage({
@@ -144,6 +145,15 @@ function onPageMessage(event: MessageEvent) {
           error
         );
       }
+      break;
+    case MessageType.MultipleAdBlockersInUse:
+      const channelName = findChannelFromTwitchTvUrl(location.href);
+      if (!channelName) break;
+      const streamStatus = getStreamStatus(channelName);
+      setStreamStatus(channelName, {
+        ...(streamStatus ?? { proxied: false }),
+        reason: "Another Twitch ad blocker is in use",
+      });
       break;
     case MessageType.ClearStats:
       clearStats(message.channelName);
