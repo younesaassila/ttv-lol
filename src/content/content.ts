@@ -148,7 +148,7 @@ function onPageMessage(event: MessageEvent) {
       break;
     case MessageType.MultipleAdBlockersInUse:
       const channelName = findChannelFromTwitchTvUrl(location.href);
-      if (!channelName) return;
+      if (!channelName) break;
       const streamStatus = getStreamStatus(channelName);
       setStreamStatus(channelName, {
         ...(streamStatus ?? { proxied: false }),
