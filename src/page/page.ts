@@ -53,8 +53,9 @@ window.Worker = class Worker extends NATIVE_WORKER {
     // Required for VAFT (>=12.0.0) compatibility.
     const NATIVE_WORKER_STRING = NATIVE_WORKER.toString();
     const isAlreadyHooked =
-      NATIVE_WORKER_STRING.includes("getAdBlockDiv") ||
-      NATIVE_WORKER_STRING.includes("getAdDiv");
+      NATIVE_WORKER_STRING.includes("twitch") &&
+      (NATIVE_WORKER_STRING.includes("getAdBlockDiv") ||
+        NATIVE_WORKER_STRING.includes("getAdDiv"));
     if (isAlreadyHooked) {
       console.error("[TTV LOL PRO] Another Twitch ad blocker is in use.");
       sendMessageToContentScript({
