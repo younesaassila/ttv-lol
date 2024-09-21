@@ -25,7 +25,7 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
-    concurrency: ci-${{ github.ref }}
+    concurrency: codeql-${{ github.ref }}
     permissions:
       actions: read
       contents: read
