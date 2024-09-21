@@ -34,7 +34,9 @@ export default function onBeforeVideoWeaverRequest(
     if (isDuplicate) return text;
 
     const channelName = findChannelFromVideoWeaverUrl(details.url);
-    const isPurpleScreen = textLower.includes("https://help.twitch.tv/");
+    const isPurpleScreen =
+      textLower.includes("https://example.com") &&
+      textLower.includes("https://help.twitch.tv/");
     const proxy =
       details.proxyInfo && details.proxyInfo.type !== "direct"
         ? getUrlFromProxyInfo(details.proxyInfo)
