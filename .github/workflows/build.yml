@@ -1,18 +1,18 @@
 name: Build and Test
+
 on:
   push:
-    branches:
-      - "**"
-    tags-ignore:
-      - "**"
+    branches: ["**"]
+    tags-ignore: ["**"]
   pull_request:
-    branches:
-      - "**"
+    branches: ["**"]
 
 jobs:
   build:
-    concurrency: ci-${{ github.ref }}
+    name: Build
     runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
+
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies

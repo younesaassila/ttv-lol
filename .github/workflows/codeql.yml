@@ -13,10 +13,11 @@ name: "CodeQL"
 
 on:
   push:
-    branches: ["main"]
+    branches: ["v2"]
+    tags-ignore: ["**"]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: ["main"]
+    branches: ["v2"]
   schedule:
     - cron: "32 9 * * 6"
 
@@ -24,6 +25,7 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
     permissions:
       actions: read
       contents: read
