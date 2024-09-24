@@ -32,7 +32,7 @@ export default async function onProxyRequest(
   }
 
   const host = getHostFromUrl(details.url);
-  if (!host) return { type: "direct" };
+  if (!host) return { type: "DIRECT" };
 
   const documentHost = details.documentUrl
     ? getHostFromUrl(details.documentUrl)
@@ -43,7 +43,7 @@ export default async function onProxyRequest(
     !passportHostRegex.test(documentHost) && // Passport requests have a `passport.twitch.tv` document URL.
     !twitchTvHostRegex.test(documentHost)
   ) {
-    return { type: "direct" };
+    return { type: "DIRECT" };
   }
 
   const proxies = store.state.optimizedProxiesEnabled
@@ -92,12 +92,12 @@ export default async function onProxyRequest(
   if (proxyUsherRequest && usherHostRegex.test(host)) {
     if (details.url.includes("/vod/")) {
       console.log(`✋ '${details.url}' is a VOD manifest.`);
-      return { type: "direct" };
+      return { type: "DIRECT" };
     }
     const channelName = findChannelFromUsherUrl(details.url);
     if (isChannelWhitelisted(channelName)) {
       console.log(`✋ Channel '${channelName}' is whitelisted.`);
-      return { type: "direct" };
+      return { type: "DIRECT" };
     }
     console.log(
       `⌛ Proxying ${details.url} (${
@@ -119,7 +119,7 @@ export default async function onProxyRequest(
       findChannelFromTwitchTvUrl(tabUrl);
     if (isChannelWhitelisted(channelName)) {
       console.log(`✋ Channel '${channelName}' is whitelisted.`);
-      return { type: "direct" };
+      return { type: "DIRECT" };
     }
     console.log(
       `⌛ Proxying ${details.url} (${
@@ -149,12 +149,12 @@ export default async function onProxyRequest(
     return proxyInfoArray;
   }
 
-  return { type: "direct" };
+  return { type: "DIRECT" };
 }
 
 function getProxyInfoArrayFromUrls(urls: string[]): ProxyInfo[] {
   return [
     ...urls.map(getProxyInfoFromUrl),
-    { type: "direct" } as ProxyInfo, // Fallback to direct connection if all proxies fail.
+    { type: "DIRECT" } as ProxyInfo, // Fallback to direct connection if all proxies fail.
   ];
 }
